@@ -9,7 +9,7 @@ from itertools import zip_longest
 
 from marshmallow import types
 from marshmallow.exceptions import ValidationError
-from marshmallow.utils import _format_error as format_error
+from marshmallow.utils import _format_error
 
 _T = typing.TypeVar("_T")
 
@@ -141,7 +141,7 @@ class URL(Validator):
         self.require_tld = require_tld
 
     def __call__(self, value: str) -> str:
-        message = _format_error(self.error, input=value)
+        message = self._format_error(value)
         if not value:
             raise ValidationError(message)
         if "://" in value:
@@ -176,7 +176,7 @@ class Email(Validator):
         self.error = error or self.default_message
 
     def __call__(self, value: str) -> str:
-        message = _format_error(self.error, input=value)
+        message = self._format_error(value)
         if not value or "@" not in value:
             raise ValidationError(message)
         user_part, domain_part = value.rsplit("@", 1)
