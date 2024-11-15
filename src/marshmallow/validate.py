@@ -9,6 +9,7 @@ from itertools import zip_longest
 
 from marshmallow import types
 from marshmallow.exceptions import ValidationError
+from marshmallow.utils import _format_error
 
 _T = typing.TypeVar("_T")
 
@@ -110,6 +111,10 @@ class URL(Validator):
                 )
             return self._memoized[key]
 
+        @staticmethod
+        def _regex_generator(relative: bool, absolute: bool, require_tld: bool) -> typing.Pattern:
+            return re.compile("...")  # Implement the actual regex generation logic here
+
     _regex = RegexMemoizer()
     default_message = "Not a valid URL."
     default_schemes = {"http", "https", "ftp", "ftps"}
@@ -134,7 +139,7 @@ class URL(Validator):
         self.require_tld = require_tld
 
     def __call__(self, value: str) -> str:
-        message = self._format_error(value)
+        message = _format_error(self.error, input=value)
         if not value:
             raise ValidationError(message)
         if "://" in value:
@@ -169,7 +174,7 @@ class Email(Validator):
         self.error = error or self.default_message
 
     def __call__(self, value: str) -> str:
-        message = self._format_error(value)
+        message = _format_error(self.error, input=value)
         if not value or "@" not in value:
             raise ValidationError(message)
         user_part, domain_part = value.rsplit("@", 1)
