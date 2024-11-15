@@ -78,8 +78,14 @@ VALIDATES = "validates"
 VALIDATES_SCHEMA = "validates_schema"
 
 
-class MarshmallowHook:
-    __marshmallow_hook__: dict[tuple[str, bool] | str, Any] | None = None
+def marshmallow_hook(hook_type: str, **kwargs: Any):
+    def decorator(fn: Callable[..., Any]) -> Callable[..., Any]:
+        @functools.wraps(fn)
+        def wrapper(*args, **kw):
+            return fn(*args, **kw)
+        wrapper.__dict__["__marshmallow_hook__"] = {hook_type: kwargs}
+        return wrapper
+    return decorator
 
 
 def validates(field_name: str) -> Callable[..., Any]:
@@ -87,12 +93,7 @@ def validates(field_name: str) -> Callable[..., Any]:
 
     :param str field_name: Name of the field that the method validates.
     """
-
-    def decorator(fn: Callable[..., Any]) -> Callable[..., Any]:
-        fn.__marshmallow_hook__ = {VALIDATES: field_name}
-        return fn
-
-    return decorator
+    return marshmallow_hook(VALIDATES, field_name=field_name)
 
 
 def validates_schema(
@@ -120,25 +121,18 @@ def validates_schema(
         ``partial`` and ``many`` are always passed as keyword arguments to
         the decorated method.
     """
-    if fn is None:
-        return functools.partial(
-            validates_schema,
+    def decorator(fn: Callable[..., Any]) -> Callable[..., Any]:
+        return marshmallow_hook(
+            VALIDATES_SCHEMA,
             pass_many=pass_many,
             pass_original=pass_original,
-            skip_on_field_errors=skip_on_field_errors,
-        )
+            skip_on_field_errors=skip_on_field_errors
+        )(fn)
 
-    @functools.wraps(fn)
-    def wrapper(*args, **kwargs):
-        return fn(*args, **kwargs)
-
-    wrapper.__marshmallow_hook__ = {
-        (VALIDATES_SCHEMA, pass_many): {
-            "pass_original": pass_original,
-            "skip_on_field_errors": skip_on_field_errors,
-        }
-    }
-    return wrapper
+    if fn is None:
+        return decorator
+    else:
+        return decorator(fn)
 
 
 def pre_dump(
@@ -230,17 +224,15 @@ def set_hook(
     :return: Decorated function if supplied, else this decorator with its args
         bound.
     """
+    if isinstance(key, tuple):
+        hook_key, pass_many = key
+    elif isinstance(key, str):
+        hook_key, pass_many = key, False
+    else:
+        raise ValueError("Invalid hook key")
 
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
-        if isinstance(key, tuple):
-            hook_key = key
-        elif isinstance(key, str):
-            hook_key = (key, False)
-        else:
-            raise ValueError("Invalid hook key")
-
-        func.__marshmallow_hook__ = {hook_key: kwargs or {}}
-        return func
+        return marshmallow_hook(hook_key, pass_many=pass_many, **kwargs)(func)
 
     if fn is None:
         return decorator
