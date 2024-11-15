@@ -7,11 +7,6 @@
 """
 
 
-class ErrorStore:
-    def __init__(self):
-        self.errors = {}
-
-
 def merge_errors(errors1, errors2):
     """Deeply merge two error messages.
 
