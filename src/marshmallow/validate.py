@@ -9,7 +9,7 @@ from itertools import zip_longest
 
 from marshmallow import types
 from marshmallow.exceptions import ValidationError
-from marshmallow.utils import _format_error
+from marshmallow.utils import _format_error as format_error
 
 _T = typing.TypeVar("_T")
 
@@ -252,12 +252,12 @@ class Range(Validator):
             value < self.min if self.min_inclusive else value <= self.min
         ):
             message = self.message_min if self.max is None else self.message_all
-            raise ValidationError(self._format_error(value, message))
+            raise ValidationError(format_error(self.error, input=value, min=self.min, max=self.max))
         if self.max is not None and (
             value > self.max if self.max_inclusive else value >= self.max
         ):
             message = self.message_max if self.min is None else self.message_all
-            raise ValidationError(self._format_error(value, message))
+            raise ValidationError(format_error(self.error, input=value, min=self.min, max=self.max))
         return value
 
 
@@ -302,14 +302,14 @@ class Length(Validator):
         length = len(value)
         if self.equal is not None:
             if length != self.equal:
-                raise ValidationError(self._format_error(value, self.message_equal))
+                raise ValidationError(format_error(self.error, input=value, equal=self.equal))
             return value
         if self.min is not None and length < self.min:
             message = self.message_min if self.max is None else self.message_all
-            raise ValidationError(self._format_error(value, message))
+            raise ValidationError(format_error(self.error, input=value, min=self.min, max=self.max))
         if self.max is not None and length > self.max:
             message = self.message_max if self.min is None else self.message_all
-            raise ValidationError(self._format_error(value, message))
+            raise ValidationError(format_error(self.error, input=value, min=self.min, max=self.max))
         return value
 
 
@@ -330,7 +330,7 @@ class Equal(Validator):
 
     def __call__(self, value: _T) -> _T:
         if value != self.comparable:
-            raise ValidationError(self._format_error(value))
+            raise ValidationError(format_error(self.error, input=value, other=self.comparable))
         return value
 
 
@@ -371,7 +371,7 @@ class Regexp(Validator):
 
     def __call__(self, value):
         if self.regex.match(value) is None:
-            raise ValidationError(self._format_error(value))
+            raise ValidationError(format_error(self.error, input=value, regex=self.regex.pattern))
         return value
 
 
@@ -397,7 +397,7 @@ class Predicate(Validator):
     def __call__(self, value: typing.Any) -> typing.Any:
         method = getattr(value, self.method)
         if not method(**self.kwargs):
-            raise ValidationError(self._format_error(value))
+            raise ValidationError(format_error(self.error, input=value, method=self.method))
         return value
 
 
@@ -419,7 +419,7 @@ class NoneOf(Validator):
     def __call__(self, value: typing.Any) -> typing.Any:
         try:
             if value in self.iterable:
-                raise ValidationError(self._format_error(value))
+                raise ValidationError(format_error(self.error, input=value, values=self.values_text))
         except TypeError:
             pass
         return value
@@ -452,9 +452,9 @@ class OneOf(Validator):
     def __call__(self, value: typing.Any) -> typing.Any:
         try:
             if value not in self.choices:
-                raise ValidationError(self._format_error(value))
+                raise ValidationError(format_error(self.error, input=value, choices=self.choices_text))
         except TypeError as error:
-            raise ValidationError(self._format_error(value)) from error
+            raise ValidationError(format_error(self.error, input=value, choices=self.choices_text)) from error
         return value
 
     def options(
@@ -500,7 +500,7 @@ class ContainsOnly(OneOf):
     def __call__(self, value: typing.Sequence[_T]) -> typing.Sequence[_T]:
         for val in value:
             if val not in self.choices:
-                raise ValidationError(self._format_error(value))
+                raise ValidationError(format_error(self.error, input=value, choices=self.choices_text))
         return value
 
 
@@ -520,5 +520,5 @@ class ContainsNoneOf(NoneOf):
     def __call__(self, value: typing.Sequence[_T]) -> typing.Sequence[_T]:
         for val in value:
             if val in self.iterable:
-                raise ValidationError(self._format_error(value))
+                raise ValidationError(format_error(self.error, input=value, values=self.values_text))
         return value
