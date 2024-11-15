@@ -223,7 +223,9 @@ def pluck(dictlist: list[dict[str, typing.Any]], key: str):
     return [d[key] for d in dictlist]
 
 
-def get_value(obj: typing.Any, key: int | str, default: typing.Any = missing) -> typing.Any:
+def get_value(
+    obj: typing.Any, key: int | str, default: typing.Any = missing
+) -> typing.Any:
     """Helper for pulling a keyed value off various types of objects. Fields use
     this method by default to access attributes of the source object. For object `x`
     and attribute `i`, this method first tries to access `x[i]`, and then falls back to
