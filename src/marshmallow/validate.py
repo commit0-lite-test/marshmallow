@@ -112,7 +112,9 @@ class URL(Validator):
             return self._memoized[key]
 
         @staticmethod
-        def _regex_generator(relative: bool, absolute: bool, require_tld: bool) -> typing.Pattern:
+        def _regex_generator(
+            relative: bool, absolute: bool, require_tld: bool
+        ) -> typing.Pattern:
             return re.compile("...")  # Implement the actual regex generation logic here
 
     _regex = RegexMemoizer()
