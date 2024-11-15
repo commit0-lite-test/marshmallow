@@ -61,8 +61,8 @@ def get_class(classname: str, all: bool = False) -> list[SchemaType] | SchemaTyp
     """
     try:
         classes = _registry[classname]
-    except KeyError:
-        raise RegistryError(f"Class with name {classname!r} was not found.")
+    except KeyError as err:
+        raise RegistryError(f"Class with name {classname!r} was not found.") from err
 
     if all:
         return classes
