@@ -68,7 +68,7 @@ Example: ::
 from __future__ import annotations
 
 import functools
-from typing import Any, Callable
+from typing import Any, Callable, TypeVar
 
 PRE_DUMP = "pre_dump"
 POST_DUMP = "post_dump"
@@ -89,7 +89,7 @@ def validates(field_name: str) -> Callable[..., Any]:
     """
 
     def decorator(fn: Callable[..., Any]) -> Callable[..., Any]:
-        fn.__marshmallow_hook__ = {VALIDATES: field_name}
+        setattr(fn, "__marshmallow_hook__", {VALIDATES: field_name})
         return fn
 
     return decorator
@@ -132,12 +132,12 @@ def validates_schema(
     def wrapper(*args, **kwargs):
         return fn(*args, **kwargs)
 
-    wrapper.__marshmallow_hook__ = {
+    setattr(wrapper, "__marshmallow_hook__", {
         (VALIDATES_SCHEMA, pass_many): {
             "pass_original": pass_original,
             "skip_on_field_errors": skip_on_field_errors,
         }
-    }
+    })
     return wrapper
 
 
@@ -239,7 +239,7 @@ def set_hook(
         else:
             raise ValueError("Invalid hook key")
 
-        func.__marshmallow_hook__ = {hook_key: kwargs or {}}
+        setattr(func, "__marshmallow_hook__", {hook_key: kwargs or {}})
         return func
 
     if fn is None:
