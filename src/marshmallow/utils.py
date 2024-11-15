@@ -36,25 +36,30 @@ missing = _Missing()
 
 def is_generator(obj) -> bool:
     """Return True if ``obj`` is a generator"""
-    pass
+    return inspect.isgenerator(obj)
 
 def is_iterable_but_not_string(obj) -> bool:
     """Return True if ``obj`` is an iterable object that isn't a string."""
-    pass
+    return (
+        isinstance(obj, collections.abc.Iterable) and not isinstance(obj, (str, bytes))
+    )
 
 def is_collection(obj) -> bool:
     """Return True if ``obj`` is a collection type, e.g list, tuple, queryset."""
-    pass
+    return is_iterable_but_not_string(obj) and not isinstance(obj, Mapping)
 
 def is_instance_or_subclass(val, class_) -> bool:
     """Return True if ``val`` is either a subclass or instance of ``class_``."""
-    pass
+    try:
+        return issubclass(val, class_)
+    except TypeError:
+        return isinstance(val, class_)
 
 def is_keyed_tuple(obj) -> bool:
     """Return True if ``obj`` has keyed tuple behavior, such as
     namedtuples or SQLAlchemy's KeyedTuples.
     """
-    pass
+    return isinstance(obj, tuple) and hasattr(obj, '_fields')
 
 def pprint(obj, *args, **kwargs) -> None:
     """Pretty-printing function that can pretty-print OrderedDicts
@@ -64,21 +69,29 @@ def pprint(obj, *args, **kwargs) -> None:
     .. deprecated:: 3.7.0
         marshmallow.pprint will be removed in marshmallow 4.
     """
-    pass
+    warnings.warn(
+        "marshmallow.pprint is deprecated and will be removed in marshmallow 4.",
+        RemovedInMarshmallow4Warning,
+        stacklevel=2,
+    )
+    if isinstance(obj, collections.OrderedDict):
+        print(json.dumps(obj, indent=2))
+    else:
+        py_pprint(obj, *args, **kwargs)
 
 def from_rfc(datestring: str) -> dt.datetime:
     """Parse a RFC822-formatted datetime string and return a datetime object.
 
     https://stackoverflow.com/questions/885015/how-to-parse-a-rfc-2822-date-time-into-a-python-datetime  # noqa: B950
     """
-    pass
+    return parsedate_to_datetime(datestring)
 
 def rfcformat(datetime: dt.datetime) -> str:
     """Return the RFC822-formatted representation of a datetime object.
 
     :param datetime datetime: The datetime.
     """
-    pass
+    return format_datetime(datetime)
 _iso8601_datetime_re = re.compile('(?P<year>\\d{4})-(?P<month>\\d{1,2})-(?P<day>\\d{1,2})[T ](?P<hour>\\d{1,2}):(?P<minute>\\d{1,2})(?::(?P<second>\\d{1,2})(?:\\.(?P<microsecond>\\d{1,6})\\d{0,6})?)?(?P<tzinfo>Z|[+-]\\d{2}(?::?\\d{2})?)?$')
 _iso8601_date_re = re.compile('(?P<year>\\d{4})-(?P<month>\\d{1,2})-(?P<day>\\d{1,2})$')
 _iso8601_time_re = re.compile('(?P<hour>\\d{1,2}):(?P<minute>\\d{1,2})(?::(?P<second>\\d{1,2})(?:\\.(?P<microsecond>\\d{1,6})\\d{0,6})?)?')
