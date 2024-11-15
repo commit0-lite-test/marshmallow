@@ -258,7 +258,6 @@ class Range(Validator):
         if self.max is not None and (
             value > self.max if self.max_inclusive else value >= self.max
         ):
-            message = self.message_max if self.min is None else self.message_all
             raise ValidationError(
                 format_error(self.error, input=value, min=self.min, max=self.max)
             )
@@ -316,7 +315,6 @@ class Length(Validator):
                 format_error(self.error, input=value, min=self.min, max=self.max)
             )
         if self.max is not None and length > self.max:
-            message = self.message_max if self.min is None else self.message_all
             raise ValidationError(
                 format_error(self.error, input=value, min=self.min, max=self.max)
             )
