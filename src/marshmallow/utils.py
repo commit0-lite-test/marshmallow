@@ -1,5 +1,7 @@
 """Utility methods for marshmallow."""
+
 from __future__ import annotations
+
 import collections
 import datetime as dt
 import functools
@@ -11,16 +13,16 @@ import warnings
 from collections.abc import Mapping
 from email.utils import format_datetime, parsedate_to_datetime
 from pprint import pprint as py_pprint
-from marshmallow.base import FieldABC
-from marshmallow.exceptions import FieldInstanceResolutionError
+
 from marshmallow.warnings import RemovedInMarshmallow4Warning
-EXCLUDE = 'exclude'
-INCLUDE = 'include'
-RAISE = 'raise'
+
+EXCLUDE = "exclude"
+INCLUDE = "include"
+RAISE = "raise"
 _UNKNOWN_VALUES = {EXCLUDE, INCLUDE, RAISE}
 
-class _Missing:
 
+class _Missing:
     def __bool__(self):
         return False
 
@@ -31,22 +33,28 @@ class _Missing:
         return self
 
     def __repr__(self):
-        return '<marshmallow.missing>'
+        return "<marshmallow.missing>"
+
+
 missing = _Missing()
+
 
 def is_generator(obj) -> bool:
     """Return True if ``obj`` is a generator"""
     return inspect.isgenerator(obj)
 
+
 def is_iterable_but_not_string(obj) -> bool:
     """Return True if ``obj`` is an iterable object that isn't a string."""
-    return (
-        isinstance(obj, collections.abc.Iterable) and not isinstance(obj, (str, bytes))
+    return isinstance(obj, collections.abc.Iterable) and not isinstance(
+        obj, (str, bytes)
     )
+
 
 def is_collection(obj) -> bool:
     """Return True if ``obj`` is a collection type, e.g list, tuple, queryset."""
     return is_iterable_but_not_string(obj) and not isinstance(obj, Mapping)
+
 
 def is_instance_or_subclass(val, class_) -> bool:
     """Return True if ``val`` is either a subclass or instance of ``class_``."""
@@ -55,11 +63,13 @@ def is_instance_or_subclass(val, class_) -> bool:
     except TypeError:
         return isinstance(val, class_)
 
+
 def is_keyed_tuple(obj) -> bool:
     """Return True if ``obj`` has keyed tuple behavior, such as
     namedtuples or SQLAlchemy's KeyedTuples.
     """
-    return isinstance(obj, tuple) and hasattr(obj, '_fields')
+    return isinstance(obj, tuple) and hasattr(obj, "_fields")
+
 
 def pprint(obj, *args, **kwargs) -> None:
     """Pretty-printing function that can pretty-print OrderedDicts
@@ -79,6 +89,7 @@ def pprint(obj, *args, **kwargs) -> None:
     else:
         py_pprint(obj, *args, **kwargs)
 
+
 def from_rfc(datestring: str) -> dt.datetime:
     """Parse a RFC822-formatted datetime string and return a datetime object.
 
@@ -86,21 +97,30 @@ def from_rfc(datestring: str) -> dt.datetime:
     """
     return parsedate_to_datetime(datestring)
 
+
 def rfcformat(datetime: dt.datetime) -> str:
     """Return the RFC822-formatted representation of a datetime object.
 
     :param datetime datetime: The datetime.
     """
     return format_datetime(datetime)
-_iso8601_datetime_re = re.compile('(?P<year>\\d{4})-(?P<month>\\d{1,2})-(?P<day>\\d{1,2})[T ](?P<hour>\\d{1,2}):(?P<minute>\\d{1,2})(?::(?P<second>\\d{1,2})(?:\\.(?P<microsecond>\\d{1,6})\\d{0,6})?)?(?P<tzinfo>Z|[+-]\\d{2}(?::?\\d{2})?)?$')
-_iso8601_date_re = re.compile('(?P<year>\\d{4})-(?P<month>\\d{1,2})-(?P<day>\\d{1,2})$')
-_iso8601_time_re = re.compile('(?P<hour>\\d{1,2}):(?P<minute>\\d{1,2})(?::(?P<second>\\d{1,2})(?:\\.(?P<microsecond>\\d{1,6})\\d{0,6})?)?')
+
+
+_iso8601_datetime_re = re.compile(
+    "(?P<year>\\d{4})-(?P<month>\\d{1,2})-(?P<day>\\d{1,2})[T ](?P<hour>\\d{1,2}):(?P<minute>\\d{1,2})(?::(?P<second>\\d{1,2})(?:\\.(?P<microsecond>\\d{1,6})\\d{0,6})?)?(?P<tzinfo>Z|[+-]\\d{2}(?::?\\d{2})?)?$"
+)
+_iso8601_date_re = re.compile("(?P<year>\\d{4})-(?P<month>\\d{1,2})-(?P<day>\\d{1,2})$")
+_iso8601_time_re = re.compile(
+    "(?P<hour>\\d{1,2}):(?P<minute>\\d{1,2})(?::(?P<second>\\d{1,2})(?:\\.(?P<microsecond>\\d{1,6})\\d{0,6})?)?"
+)
+
 
 def get_fixed_timezone(offset: int | float | dt.timedelta) -> dt.timezone:
     """Return a tzinfo instance with a fixed offset from UTC."""
     if isinstance(offset, dt.timedelta):
         offset = offset.total_seconds() // 60
     return dt.timezone(dt.timedelta(minutes=int(offset)))
+
 
 def from_iso_datetime(value):
     """Parse a string and return a datetime.datetime.
@@ -138,6 +158,7 @@ def from_iso_datetime(value):
 
     return dt.datetime(**time_dict, tzinfo=tzinfo)
 
+
 def from_iso_time(value):
     """Parse a string and return a datetime.time.
 
@@ -159,6 +180,7 @@ def from_iso_time(value):
 
     return dt.time(**time_dict)
 
+
 def from_iso_date(value):
     """Parse a string and return a datetime.date."""
     if isinstance(value, dt.date):
@@ -176,12 +198,14 @@ def from_iso_date(value):
 
     return dt.date(**date_dict)
 
+
 def isoformat(datetime: dt.datetime) -> str:
     """Return the ISO8601-formatted representation of a datetime object.
 
     :param datetime datetime: The datetime.
     """
     return datetime.isoformat()
+
 
 def pluck(dictlist: list[dict[str, typing.Any]], key: str):
     """Extracts a list of dictionary values from a list of dictionaries.
@@ -192,6 +216,7 @@ def pluck(dictlist: list[dict[str, typing.Any]], key: str):
         [1, 2]
     """
     return [d[key] for d in dictlist]
+
 
 def get_value(obj, key: int | str, default=missing):
     """Helper for pulling a keyed value off various types of objects. Fields use
@@ -212,6 +237,7 @@ def get_value(obj, key: int | str, default=missing):
         except AttributeError:
             return default
 
+
 def set_value(dct: dict[str, typing.Any], key: str, value: typing.Any):
     """Set a value in a dict. If `key` contains a '.', it is assumed
     be a path (i.e. dot-delimited string) to the value's location.
@@ -223,19 +249,21 @@ def set_value(dct: dict[str, typing.Any], key: str, value: typing.Any):
         >>> d
         {'foo': {'bar': 42}}
     """
-    if '.' in key:
-        head, rest = key.split('.', 1)
+    if "." in key:
+        head, rest = key.split(".", 1)
         if head not in dct:
             dct[head] = {}
         set_value(dct[head], rest, value)
     else:
         dct[key] = value
 
+
 def callable_or_raise(obj):
     """Check that an object is callable, else raise a :exc:`TypeError`."""
     if not callable(obj):
         raise TypeError(f"{obj!r} is not callable.")
     return obj
+
 
 def get_func_args(func: typing.Callable) -> list[str]:
     """Given a callable, return a list of argument names. Handles
@@ -245,7 +273,7 @@ def get_func_args(func: typing.Callable) -> list[str]:
         Do not return bound arguments, eg. ``self``.
     """
     if isinstance(func, functools.partial):
-        return get_func_args(func.func)[len(func.args):]
+        return get_func_args(func.func)[len(func.args) :]
     if inspect.isfunction(func) or inspect.ismethod(func):
         return list(inspect.signature(func).parameters.keys())
     if inspect.isclass(func):
@@ -253,6 +281,7 @@ def get_func_args(func: typing.Callable) -> list[str]:
     if callable(func):
         return get_func_args(func.__call__)[1:]
     raise ValueError(f"{func!r} is not a callable.")
+
 
 def resolve_field_instance(cls_or_instance):
     """Return a Schema instance from a Schema class or instance.
@@ -262,6 +291,7 @@ def resolve_field_instance(cls_or_instance):
     if isinstance(cls_or_instance, type):
         return cls_or_instance()
     return cls_or_instance
+
 
 def timedelta_to_microseconds(value: dt.timedelta) -> int:
     """Compute the total microseconds of a timedelta
