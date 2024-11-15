@@ -5,12 +5,12 @@
     This module is treated as private API.
     Users should not need to use this module directly.
 """
-from marshmallow.exceptions import SCHEMA
+
 
 class ErrorStore:
-
     def __init__(self):
         self.errors = {}
+
 
 def merge_errors(errors1, errors2):
     """Deeply merge two error messages.
@@ -28,7 +28,9 @@ def merge_errors(errors1, errors2):
         return merged
     elif isinstance(errors1, list) and isinstance(errors2, list):
         return errors1 + errors2
-    elif isinstance(errors1, (str, int, float)) and isinstance(errors2, (str, int, float)):
+    elif isinstance(errors1, (str, int, float)) and isinstance(
+        errors2, (str, int, float)
+    ):
         return [errors1, errors2]
     elif errors1 is None:
         return errors2
