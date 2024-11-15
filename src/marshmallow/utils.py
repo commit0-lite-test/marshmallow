@@ -178,7 +178,8 @@ def from_iso_time(value):
         "microsecond": int(groups["microsecond"] or 0),
     }
 
-    return dt.time(**time_dict)
+    return dt.time(hour=time_dict["hour"], minute=time_dict["minute"], 
+                   second=time_dict["second"], microsecond=time_dict["microsecond"])
 
 
 def from_iso_date(value):
@@ -281,7 +282,7 @@ def get_func_args(func: typing.Callable) -> list[str]:
     if inspect.isclass(func):
         return get_func_args(func.__init__)[1:]
     if callable(func):
-        return get_func_args(func.__call__)[1:]
+        return list(inspect.signature(func).parameters.keys())[1:]
     raise ValueError(f"{func!r} is not a callable.")
 
 
