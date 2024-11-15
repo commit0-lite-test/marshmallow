@@ -9,7 +9,6 @@ from itertools import zip_longest
 
 from marshmallow import types
 from marshmallow.exceptions import ValidationError
-from marshmallow.utils import _format_error
 
 _T = typing.TypeVar("_T")
 
