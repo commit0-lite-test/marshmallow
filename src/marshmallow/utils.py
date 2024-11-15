@@ -178,8 +178,12 @@ def from_iso_time(value):
         "microsecond": int(groups["microsecond"] or 0),
     }
 
-    return dt.time(hour=time_dict["hour"], minute=time_dict["minute"], 
-                   second=time_dict["second"], microsecond=time_dict["microsecond"])
+    return dt.time(
+        hour=time_dict["hour"],
+        minute=time_dict["minute"],
+        second=time_dict["second"],
+        microsecond=time_dict["microsecond"],
+    )
 
 
 def from_iso_date(value):
