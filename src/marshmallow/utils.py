@@ -98,7 +98,9 @@ _iso8601_time_re = re.compile('(?P<hour>\\d{1,2}):(?P<minute>\\d{1,2})(?::(?P<se
 
 def get_fixed_timezone(offset: int | float | dt.timedelta) -> dt.timezone:
     """Return a tzinfo instance with a fixed offset from UTC."""
-    pass
+    if isinstance(offset, dt.timedelta):
+        offset = offset.total_seconds() // 60
+    return dt.timezone(dt.timedelta(minutes=int(offset)))
 
 def from_iso_datetime(value):
     """Parse a string and return a datetime.datetime.
@@ -106,25 +108,80 @@ def from_iso_datetime(value):
     This function supports time zone offsets. When the input contains one,
     the output uses a timezone with a fixed offset from UTC.
     """
-    pass
+    if isinstance(value, dt.datetime):
+        return value
+    match = _iso8601_datetime_re.match(value)
+    if not match:
+        raise ValueError(f"Not a valid ISO8601-formatted datetime string: {value}")
+    groups = match.groupdict()
+
+    time_dict = {
+        "year": int(groups["year"]),
+        "month": int(groups["month"]),
+        "day": int(groups["day"]),
+        "hour": int(groups["hour"]),
+        "minute": int(groups["minute"]),
+        "second": int(groups["second"] or 0),
+        "microsecond": int(groups["microsecond"] or 0),
+    }
+
+    tzinfo = None
+    if groups["tzinfo"]:
+        if groups["tzinfo"] == "Z":
+            tzinfo = dt.timezone.utc
+        else:
+            offset_mins = int(groups["tzinfo"][-2:]) if len(groups["tzinfo"]) > 3 else 0
+            offset = 60 * int(groups["tzinfo"][1:3]) + offset_mins
+            if groups["tzinfo"][0] == "-":
+                offset = -offset
+            tzinfo = get_fixed_timezone(offset)
+
+    return dt.datetime(**time_dict, tzinfo=tzinfo)
 
 def from_iso_time(value):
     """Parse a string and return a datetime.time.
 
     This function doesn't support time zone offsets.
     """
-    pass
+    if isinstance(value, dt.time):
+        return value
+    match = _iso8601_time_re.match(value)
+    if not match:
+        raise ValueError(f"Not a valid ISO8601-formatted time string: {value}")
+    groups = match.groupdict()
+
+    time_dict = {
+        "hour": int(groups["hour"]),
+        "minute": int(groups["minute"]),
+        "second": int(groups["second"] or 0),
+        "microsecond": int(groups["microsecond"] or 0),
+    }
+
+    return dt.time(**time_dict)
 
 def from_iso_date(value):
     """Parse a string and return a datetime.date."""
-    pass
+    if isinstance(value, dt.date):
+        return value
+    match = _iso8601_date_re.match(value)
+    if not match:
+        raise ValueError(f"Not a valid ISO8601-formatted date string: {value}")
+    groups = match.groupdict()
+
+    date_dict = {
+        "year": int(groups["year"]),
+        "month": int(groups["month"]),
+        "day": int(groups["day"]),
+    }
+
+    return dt.date(**date_dict)
 
 def isoformat(datetime: dt.datetime) -> str:
     """Return the ISO8601-formatted representation of a datetime object.
 
     :param datetime datetime: The datetime.
     """
-    pass
+    return datetime.isoformat()
 
 def pluck(dictlist: list[dict[str, typing.Any]], key: str):
     """Extracts a list of dictionary values from a list of dictionaries.
@@ -134,7 +191,7 @@ def pluck(dictlist: list[dict[str, typing.Any]], key: str):
         >>> pluck(dlist, 'id')
         [1, 2]
     """
-    pass
+    return [d[key] for d in dictlist]
 
 def get_value(obj, key: int | str, default=missing):
     """Helper for pulling a keyed value off various types of objects. Fields use
@@ -147,7 +204,13 @@ def get_value(obj, key: int | str, default=missing):
         `get_value` will never check the value `x.i`. Consider overriding
         `marshmallow.fields.Field.get_value` in this case.
     """
-    pass
+    try:
+        return obj[key]
+    except (KeyError, IndexError, TypeError, AttributeError):
+        try:
+            return getattr(obj, key)
+        except AttributeError:
+            return default
 
 def set_value(dct: dict[str, typing.Any], key: str, value: typing.Any):
     """Set a value in a dict. If `key` contains a '.', it is assumed
@@ -160,11 +223,19 @@ def set_value(dct: dict[str, typing.Any], key: str, value: typing.Any):
         >>> d
         {'foo': {'bar': 42}}
     """
-    pass
+    if '.' in key:
+        head, rest = key.split('.', 1)
+        if head not in dct:
+            dct[head] = {}
+        set_value(dct[head], rest, value)
+    else:
+        dct[key] = value
 
 def callable_or_raise(obj):
     """Check that an object is callable, else raise a :exc:`TypeError`."""
-    pass
+    if not callable(obj):
+        raise TypeError(f"{obj!r} is not callable.")
+    return obj
 
 def get_func_args(func: typing.Callable) -> list[str]:
     """Given a callable, return a list of argument names. Handles
@@ -173,18 +244,28 @@ def get_func_args(func: typing.Callable) -> list[str]:
     .. versionchanged:: 3.0.0a1
         Do not return bound arguments, eg. ``self``.
     """
-    pass
+    if isinstance(func, functools.partial):
+        return get_func_args(func.func)[len(func.args):]
+    if inspect.isfunction(func) or inspect.ismethod(func):
+        return list(inspect.signature(func).parameters.keys())
+    if inspect.isclass(func):
+        return get_func_args(func.__init__)[1:]
+    if callable(func):
+        return get_func_args(func.__call__)[1:]
+    raise ValueError(f"{func!r} is not a callable.")
 
 def resolve_field_instance(cls_or_instance):
     """Return a Schema instance from a Schema class or instance.
 
     :param type|Schema cls_or_instance: Marshmallow Schema class or instance.
     """
-    pass
+    if isinstance(cls_or_instance, type):
+        return cls_or_instance()
+    return cls_or_instance
 
 def timedelta_to_microseconds(value: dt.timedelta) -> int:
     """Compute the total microseconds of a timedelta
 
     https://github.com/python/cpython/blob/bb3e0c240bc60fe08d332ff5955d54197f79751c/Lib/datetime.py#L665-L667  # noqa: B950
     """
-    pass
+    return (value.days * 86400 + value.seconds) * 1000000 + value.microseconds
