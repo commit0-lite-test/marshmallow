@@ -83,8 +83,10 @@ def marshmallow_hook(hook_type: str, **kwargs: Any):
         @functools.wraps(fn)
         def wrapper(*args, **kw):
             return fn(*args, **kw)
+
         wrapper.__dict__["__marshmallow_hook__"] = {hook_type: kwargs}
         return wrapper
+
     return decorator
 
 
@@ -121,12 +123,13 @@ def validates_schema(
         ``partial`` and ``many`` are always passed as keyword arguments to
         the decorated method.
     """
+
     def decorator(fn: Callable[..., Any]) -> Callable[..., Any]:
         return marshmallow_hook(
             VALIDATES_SCHEMA,
             pass_many=pass_many,
             pass_original=pass_original,
-            skip_on_field_errors=skip_on_field_errors
+            skip_on_field_errors=skip_on_field_errors,
         )(fn)
 
     if fn is None:
