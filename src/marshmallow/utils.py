@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import collections
+import collections.abc
 import datetime as dt
 import functools
 import inspect
@@ -199,12 +199,12 @@ def from_iso_date(value):
     return dt.date(**date_dict)
 
 
-def isoformat(datetime: dt.datetime) -> str:
+def isoformat(datetime_obj: dt.datetime) -> str:
     """Return the ISO8601-formatted representation of a datetime object.
 
-    :param datetime datetime: The datetime.
+    :param datetime_obj: The datetime object.
     """
-    return datetime.isoformat()
+    return datetime_obj.isoformat()
 
 
 def pluck(dictlist: list[dict[str, typing.Any]], key: str):
@@ -218,7 +218,7 @@ def pluck(dictlist: list[dict[str, typing.Any]], key: str):
     return [d[key] for d in dictlist]
 
 
-def get_value(obj, key: int | str, default=missing):
+def get_value(obj: typing.Any, key: typing.Union[int, str], default: typing.Any = missing) -> typing.Any:
     """Helper for pulling a keyed value off various types of objects. Fields use
     this method by default to access attributes of the source object. For object `x`
     and attribute `i`, this method first tries to access `x[i]`, and then falls back to
@@ -233,7 +233,7 @@ def get_value(obj, key: int | str, default=missing):
         return obj[key]
     except (KeyError, IndexError, TypeError, AttributeError):
         try:
-            return getattr(obj, key)
+            return getattr(obj, str(key))
         except AttributeError:
             return default
 
@@ -258,7 +258,7 @@ def set_value(dct: dict[str, typing.Any], key: str, value: typing.Any):
         dct[key] = value
 
 
-def callable_or_raise(obj):
+def callable_or_raise(obj: typing.Any) -> typing.Callable:
     """Check that an object is callable, else raise a :exc:`TypeError`."""
     if not callable(obj):
         raise TypeError(f"{obj!r} is not callable.")
