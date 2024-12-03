@@ -638,7 +638,7 @@ class Date(DateTime):
     :param kwargs: The same keyword arguments that :class:`Field` receives.
     """
     default_error_messages = {'invalid': 'Not a valid date.', 'format': '"{input}" cannot be formatted as a date.'}
-    SERIALIZATION_FUNCS = {'iso': utils.to_iso_date, 'iso8601': utils.to_iso_date}
+    SERIALIZATION_FUNCS = {}
     DESERIALIZATION_FUNCS = {'iso': utils.from_iso_date, 'iso8601': utils.from_iso_date}
     DEFAULT_FORMAT = 'iso'
     OBJ_TYPE = 'date'
