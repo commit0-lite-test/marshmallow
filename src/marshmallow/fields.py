@@ -569,8 +569,8 @@ class DateTime(Field):
     .. versionchanged:: 3.19
         Add timestamp as a format.
     """
-    SERIALIZATION_FUNCS = {'iso': utils.isoformat, 'iso8601': utils.isoformat, 'rfc': utils.rfcformat, 'rfc822': utils.rfcformat, 'timestamp': utils.timestamp, 'timestamp_ms': utils.timestamp_ms}
-    DESERIALIZATION_FUNCS = {'iso': utils.from_iso_datetime, 'iso8601': utils.from_iso_datetime, 'rfc': utils.from_rfc, 'rfc822': utils.from_rfc, 'timestamp': utils.from_timestamp, 'timestamp_ms': utils.from_timestamp_ms}
+    SERIALIZATION_FUNCS = {'iso': utils.isoformat, 'iso8601': utils.isoformat, 'rfc': utils.rfcformat, 'rfc822': utils.rfcformat}
+    DESERIALIZATION_FUNCS = {'iso': utils.from_iso_datetime, 'iso8601': utils.from_iso_datetime, 'rfc': utils.from_rfc, 'rfc822': utils.from_rfc}
     DEFAULT_FORMAT = 'iso'
     OBJ_TYPE = 'datetime'
     SCHEMA_OPTS_VAR_NAME = 'datetimeformat'
