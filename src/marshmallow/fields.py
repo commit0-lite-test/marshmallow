@@ -11,7 +11,18 @@ import typing
 import uuid
 import warnings
 from collections.abc import Mapping as _Mapping
+
+# Define the constants
+RAISE = 'raise'
+INCLUDE = 'include'
+EXCLUDE = 'exclude'
 from marshmallow.exceptions import ValidationError
+
+def validate_unknown_parameter_value(value):
+    """Validate the unknown parameter."""
+    if value in (RAISE, INCLUDE, EXCLUDE):
+        return value
+    raise ValidationError(f"Unknown must be '{RAISE}', '{INCLUDE}', or '{EXCLUDE}', got '{value}'.")
 
 # Define the constants
 RAISE = 'raise'
