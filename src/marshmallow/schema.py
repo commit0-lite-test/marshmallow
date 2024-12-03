@@ -17,7 +17,17 @@ from marshmallow.decorators import POST_DUMP, POST_LOAD, PRE_DUMP, PRE_LOAD, VAL
 from marshmallow.exceptions import ValidationError
 from marshmallow.exceptions import StringNotCollectionError, ValidationError
 from marshmallow.orderedset import OrderedSet
-from marshmallow.utils import EXCLUDE, INCLUDE, RAISE, get_value, is_collection, is_instance_or_subclass, missing, set_value, validate_unknown_parameter_value
+from marshmallow.utils import (
+    EXCLUDE,
+    INCLUDE,
+    RAISE,
+    get_value,
+    is_collection,
+    is_instance_or_subclass,
+    missing,
+    set_value,
+    validate_unknown_parameter_value,
+)
 from marshmallow.warnings import RemovedInMarshmallow4Warning
 _T = typing.TypeVar('_T')
 
