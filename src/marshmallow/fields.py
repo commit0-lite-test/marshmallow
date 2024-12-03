@@ -17,6 +17,12 @@ from marshmallow.exceptions import ValidationError
 RAISE = 'raise'
 INCLUDE = 'include'
 EXCLUDE = 'exclude'
+
+def validate_unknown_parameter_value(value):
+    """Validate the unknown parameter."""
+    if value in (RAISE, INCLUDE, EXCLUDE):
+        return value
+    raise ValidationError(f"Unknown must be '{RAISE}', '{INCLUDE}', or '{EXCLUDE}', got '{value}'.")
 from enum import Enum as EnumType
 from marshmallow import class_registry, types, utils, validate
 from marshmallow.base import FieldABC, SchemaABC
