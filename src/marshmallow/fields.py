@@ -624,7 +624,7 @@ class Time(DateTime):
         If `None`, defaults to "iso".
     :param kwargs: The same keyword arguments that :class:`Field` receives.
     """
-    SERIALIZATION_FUNCS = {'iso': utils.to_iso_time, 'iso8601': utils.to_iso_time}
+    SERIALIZATION_FUNCS = {}
     DESERIALIZATION_FUNCS = {'iso': utils.from_iso_time, 'iso8601': utils.from_iso_time}
     DEFAULT_FORMAT = 'iso'
     OBJ_TYPE = 'time'
