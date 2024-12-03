@@ -50,6 +50,18 @@ from marshmallow.validate import And, Length
 from marshmallow.warnings import RemovedInMarshmallow4Warning
 from marshmallow.exceptions import ValidationError
 
+# Define the constants
+RAISE = 'raise'
+INCLUDE = 'include'
+EXCLUDE = 'exclude'
+
+def validate_unknown_parameter_value(value):
+    """Validate the unknown parameter."""
+    if value in (RAISE, INCLUDE, EXCLUDE):
+        return value
+    raise ValidationError(f"Unknown must be '{RAISE}', '{INCLUDE}', or '{EXCLUDE}', got '{value}'.")
+from marshmallow.exceptions import ValidationError
+
 def validate_unknown_parameter_value(value):
     """Validate the unknown parameter."""
     if value in (RAISE, INCLUDE, EXCLUDE):
