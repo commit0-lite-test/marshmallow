@@ -14,7 +14,7 @@ from collections.abc import Mapping
 from marshmallow import base, class_registry, types
 from marshmallow import fields as ma_fields
 from marshmallow.decorators import POST_DUMP, POST_LOAD, PRE_DUMP, PRE_LOAD, VALIDATES, VALIDATES_SCHEMA
-from marshmallow.error_store import ErrorStore
+from marshmallow.exceptions import ValidationError
 from marshmallow.exceptions import StringNotCollectionError, ValidationError
 from marshmallow.orderedset import OrderedSet
 from marshmallow.utils import EXCLUDE, INCLUDE, RAISE, get_value, is_collection, is_instance_or_subclass, missing, set_value, validate_unknown_parameter_value
@@ -369,11 +369,10 @@ class Schema(base.SchemaABC, metaclass=SchemaMeta):
         """
         pass
 
-    def _deserialize(self, data: typing.Mapping[str, typing.Any] | typing.Iterable[typing.Mapping[str, typing.Any]], *, error_store: ErrorStore, many: bool=False, partial=None, unknown=RAISE, index=None) -> _T | list[_T]:
+    def _deserialize(self, data: typing.Mapping[str, typing.Any] | typing.Iterable[typing.Mapping[str, typing.Any]], *, many: bool=False, partial=None, unknown=RAISE, index=None) -> _T | list[_T]:
         """Deserialize ``data``.
 
         :param dict data: The data to deserialize.
-        :param ErrorStore error_store: Structure to store errors.
         :param bool many: `True` if ``data`` should be deserialized as a collection.
         :param bool|tuple partial: Whether to ignore missing fields and not require
             any fields declared. Propagates down to ``Nested`` fields as well. If
@@ -385,6 +384,7 @@ class Schema(base.SchemaABC, metaclass=SchemaMeta):
             serializing a collection, otherwise `None`.
         :return: A dictionary of the deserialized data.
         """
+        errors = {}
         pass
 
     def load(self, data: typing.Mapping[str, typing.Any] | typing.Iterable[typing.Mapping[str, typing.Any]], *, many: bool | None=None, partial: bool | types.StrSequenceOrSet | None=None, unknown: str | None=None):
