@@ -12,7 +12,11 @@ import uuid
 import warnings
 from collections.abc import Mapping as _Mapping
 from marshmallow.exceptions import ValidationError
-from marshmallow.utils import RAISE, INCLUDE, EXCLUDE
+
+# Define the constants
+RAISE = 'raise'
+INCLUDE = 'include'
+EXCLUDE = 'exclude'
 from enum import Enum as EnumType
 from marshmallow import class_registry, types, utils, validate
 from marshmallow.base import FieldABC, SchemaABC
@@ -27,7 +31,7 @@ def validate_unknown_parameter_value(value):
     """Validate the unknown parameter."""
     if value in (RAISE, INCLUDE, EXCLUDE):
         return value
-    raise ValidationError(f"Unknown must be 'RAISE', 'INCLUDE', or 'EXCLUDE', got '{value}'.")
+    raise ValidationError(f"Unknown must be '{RAISE}', '{INCLUDE}', or '{EXCLUDE}', got '{value}'.")
 __all__ = ['Field', 'Raw', 'Nested', 'Mapping', 'Dict', 'List', 'Tuple', 'String', 'UUID', 'Number', 'Integer', 'Decimal', 'Boolean', 'Float', 'DateTime', 'NaiveDateTime', 'AwareDateTime', 'Time', 'Date', 'TimeDelta', 'Url', 'URL', 'Email', 'IP', 'IPv4', 'IPv6', 'IPInterface', 'IPv4Interface', 'IPv6Interface', 'Enum', 'Method', 'Function', 'Str', 'Bool', 'Int', 'Constant', 'Pluck']
 _T = typing.TypeVar('_T')
 
