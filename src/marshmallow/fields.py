@@ -11,6 +11,8 @@ import typing
 import uuid
 import warnings
 from collections.abc import Mapping as _Mapping
+from marshmallow.exceptions import ValidationError
+from marshmallow.utils import RAISE, INCLUDE, EXCLUDE
 from enum import Enum as EnumType
 from marshmallow import class_registry, types, utils, validate
 from marshmallow.base import FieldABC, SchemaABC
@@ -19,6 +21,13 @@ from marshmallow.utils import is_collection, resolve_field_instance
 from marshmallow.utils import missing as missing_
 from marshmallow.validate import And, Length
 from marshmallow.warnings import RemovedInMarshmallow4Warning
+from marshmallow.exceptions import ValidationError
+
+def validate_unknown_parameter_value(value):
+    """Validate the unknown parameter."""
+    if value in (RAISE, INCLUDE, EXCLUDE):
+        return value
+    raise ValidationError(f"Unknown must be 'RAISE', 'INCLUDE', or 'EXCLUDE', got '{value}'.")
 __all__ = ['Field', 'Raw', 'Nested', 'Mapping', 'Dict', 'List', 'Tuple', 'String', 'UUID', 'Number', 'Integer', 'Decimal', 'Boolean', 'Float', 'DateTime', 'NaiveDateTime', 'AwareDateTime', 'Time', 'Date', 'TimeDelta', 'Url', 'URL', 'Email', 'IP', 'IPv4', 'IPv6', 'IPInterface', 'IPv4Interface', 'IPv6Interface', 'Enum', 'Method', 'Function', 'Str', 'Bool', 'Int', 'Constant', 'Pluck']
 _T = typing.TypeVar('_T')
 
